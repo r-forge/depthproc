@@ -1,0 +1,82 @@
+This file documents the R package project in the RPE. 
+The current contents are a guide to creating your R package using the RPE.
+Once you have completed your package, you may either replace the contents 
+of this file with your own package README information or remove
+this file from your project.
+
+Note that to build R packages, you will need to setup a toolchain on your 
+machine. Visit http://www.murdoch-sutherland.com/Rtools/ for the current 
+locations and instructions. 
+
+Now that you have an R package project, follow the steps below to get your 
+package ready to build.
+
+1.  Open a copy of 'Writing R Extensions', available by choosing 'R Manuals
+   (PDF)' from the Help menu, then selecting the correct manual from the 
+    list on the left.  This is your primary guide to R package development -
+    refer to it whenever you need more information than is presented below.
+    
+2.  Provide your package information by editing the DESCRIPTION file.
+    The first seven lines in the DESCRIPTION file contain required fields, 
+    while the following fields are optional, but should be included in most 
+    R packages.  Edit the value for each field to contain the appropriate 
+    information for your package.  For more information on these fields, 
+    refer to 'Writing R Extensions'.
+    
+    Documented below are several more fields which may optionaly be included
+    in your DESCRIPTION file
+      Author@R: c(person("FirstName", "LastName", email = "emailName@some.domain.net"))
+      Date: 2011-01-01
+      URL: http://www.packageDeveloper.org
+      BugReports: http://packageName.bugReports.url
+      Depends: R (>= 2.13.2), packageNames
+      Imports: packageNames
+      Suggests: packageNames
+      Enhances: packageNames
+      LazyData: yes
+      BuildVignettes: false
+      Encoding: encodingFormat
+      OS_type: supportedOS
+      Type: packageType
+      Classification/???: classificationCodes
+      Language: languageTags
+      Collate: packageCodeFiles
+
+3.  Create the functions and other R objects you wish your package to 
+    contain in the R scripts under the package folder named 'R'.  You may 
+    choose to use the included Script.R file, rename is, or create
+    other .R files of your own.  If you create dependencies on other 
+    packages, or on a particular version of R, be sure to update your 
+    DESCRIPTION file to reflect these.
+    
+4.  Export the functions and other R objects you wish your package to expose 
+    in the NAMESPACE file.  For more information, refer to 'Writing R 
+    Extensions'.
+    
+5.  Create help (.Rd) files in the 'man' package folder to document your 
+    package functions and interface. If you have executed your R scripts so 
+    that your function and interface objects are in memory, you can
+    create .Rd file skeletons based on those objects when adding .Rd files 
+    in the RPE Solution Explorer as documented in 'Creating an R Package 
+    as an R Project' section of the 'RPE User's Guide'.
+    
+5.  When you are ready to build your package, right-click on the package 
+    project in the Solution Explorer and choose 'Build R Package'.  As your 
+    package builds, you will see the build output information in the output
+    window.  If your toolchain has been set up correctly, and your package 
+    is well formed, the build should succeed and a .zip file will be
+    created.  If not, use the error information provided by the output, 
+    along with the R Manuals and documentation to fix whatever problems 
+    occur, then try again.
+    
+6.  To test your package, run R CMD check.  You can do this from the 
+    Revolution R Enterprise Console by entering the following (replacing
+    myPackageName with the name of your package):
+    
+      system("R CMD check myPackageName", intern = TRUE)
+      
+7.  If you want to create a tar.gz file for further distribution, enter
+    the following (again replacing myPackageName with the name of
+    your package):
+    
+      system("R CMD build myPackageName", intern = TRUE)
