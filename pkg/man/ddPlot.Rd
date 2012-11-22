@@ -40,7 +40,8 @@ Returns the Depth versus depth plot of multivariate dataset \code{x} and theoret
 
 \references{Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion), \emph{Ann. Statist.}, \bold{27}, 822--831.
 
-jeszcze jedna pozycja o index_Liu!}
+Liu, R.Y., Singh K. (1993), A Quality Index Based on Data Depth and Multivariate Rank Test, \emph{Journal of the American Statistical Association} vol. 88.
+}
 
 \author{Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz, Zygmunt Zawadzki from Cracow University of Economics.}
 
@@ -53,7 +54,7 @@ require(MASS)
 Standard <- mvrnorm(1000, c(0,0), diag(2))
 Shift <- mvrnorm(1000, c(0.5, 0), diag(2))
 ddPlot(x=Standard, y=Shift)
-ddPlot(x=Shift, distribution='mvnorm', mu=c(0,0), Sigma=diag(2))
+ddPlot(x=Shift, distribution='mvnorm', mean=c(0,0), varcov=diag(2))
 ddPlot(x=Standard, y=Shift, location=TRUE)
 
 ## Scale difference

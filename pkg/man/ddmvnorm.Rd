@@ -1,5 +1,5 @@
 \name{ddmvnorm}
-
+\alias{ddmvnorm}
 
 \title{Normal depth versus depth plot}
 \description{
@@ -25,7 +25,7 @@ Returns the normal depth versus depth plot of multivariate dataset \code{x}. Als
 
 \references{Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion), \emph{Ann. Statist.}, \bold{27}, 822--831.
 
-jeszcze index Liu!}
+Liu, R.Y., Singh K. (1993), A Quality Index Based on Data Depth and Multivariate Rank Test, \emph{Journal of the American Statistical Association} vol. 88.}
 
 \author{Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz, Zygmunt Zawadzki from Cracow University of Economics.}
 
