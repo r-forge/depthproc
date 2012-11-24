@@ -1,6 +1,6 @@
 depth = function(u, X, method="Projection", ndir=1000, digits=2)
 {
-  if(is.data.frame(starsCYG)) u = as.matrix(u)
+  if(is.data.frame(u)) u = as.matrix(u)
   if(is.data.frame(X)) X = as.matrix(X)
   
 set.seed(1)
@@ -9,11 +9,7 @@ if(is.vector(u)) u = matrix(u,ncol = dim(X)[2])
 
 #######################################################################
 if (method=="Mahalanobis")
-{
- 	#matrix ready
-	
-	 #dodane
-	
+{	
 	cov = cov(X)
 	center = colMeans(X)
 	
