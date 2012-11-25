@@ -54,7 +54,7 @@ require(MASS)
 Standard <- mvrnorm(1000, c(0,0), diag(2))
 Shift <- mvrnorm(1000, c(0.5, 0), diag(2))
 ddPlot(x=Standard, y=Shift)
-ddPlot(x=Shift, distribution='mvnorm', mean=c(0,0), varcov=diag(2))
+ddPlot(x=Shift, distribution='mvnorm', mu=c(0,0), Sigma=diag(2))
 ddPlot(x=Standard, y=Shift, location=TRUE)
 
 ## Scale difference
