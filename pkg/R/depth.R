@@ -112,7 +112,12 @@ if (method=="Tukey")
   }
 }
 
-
+### Under development
+if(method == "Projection2")
+{
+		proj = runifsphere(ndir, ncol(X))
+		depth = .Call("projection",PACKAGE = "depthproc",X,X,proj,ncol(X),nrow(X),nrow(u),nrow(proj))
+}
 ########################################################
 
 depth
