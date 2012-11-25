@@ -52,7 +52,7 @@ Any additional parameters for function depth
 \code{\link{depthContour}}
 }
 \examples{
-
+\dontrun{
 #Example 1
 require(MASS)
 
@@ -62,7 +62,7 @@ depthPersp(x)
 #Example 2
 
 depthPersp(x,plot.method = "lattice")
-
+}
 }
 \keyword{plot}
 \keyword{depth}
