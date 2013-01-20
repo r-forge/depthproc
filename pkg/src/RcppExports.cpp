@@ -2,22 +2,17 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <Rcpp.h>
-#include <string>
-#include <set>
 
 using namespace Rcpp;
 
+// depth2dcpp
 NumericVector depth2dcpp(SEXP R_x, SEXP R_y);
-
-static bool validateExported(const std::string& sig) {
-    static std::set<std::string> signatures;
-    if (signatures.empty()) {
-        signatures.insert("NumericVector(*depth2dcpp)(SEXP,SEXP)");
-    }
-    return signatures.find(sig) != signatures.end();
-}
-
-RCPP_MODULE(depthproc_RcppExports) {
-    Rcpp::function("depth2dcpp", &depth2dcpp, Rcpp::List::create(Rcpp::Named("R_x"), Rcpp::Named("R_y")));
-    Rcpp::function("RcppExports_validateExported", &validateExported);
+RcppExport SEXP depthproc_depth2dcpp(SEXP R_xSEXP, SEXP R_ySEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    SEXP R_x = Rcpp::as<SEXP >(R_xSEXP);
+    SEXP R_y = Rcpp::as<SEXP >(R_ySEXP);
+    NumericVector __result = depth2dcpp(R_x, R_y);
+    return Rcpp::wrap(__result);
+END_RCPP
 }
