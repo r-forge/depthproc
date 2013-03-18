@@ -98,7 +98,7 @@ if (method=="Euclidean")
 if(method == "Projection")
 {
     proj = runifsphere(ndir, ncol(X))
-    depth = .Call("projection",PACKAGE = "depthproc",X,X,proj,ncol(X),nrow(X),nrow(u),nrow(proj))
+    depth = .Call("projection",PACKAGE = "depthproc",u,X,proj,ncol(X),nrow(X),nrow(u),nrow(proj))
 }
   
 # if (method=="Projection")  
