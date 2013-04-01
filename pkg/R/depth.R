@@ -62,7 +62,7 @@ depth = function(u, X, method="Projection", ndir=1000, digits=2)
   if(is.data.frame(u)) u = as.matrix(u)
   if(is.data.frame(X)) X = as.matrix(X)
   
-set.seed(1)
+
 if(is.vector(X)) X = matrix(X,ncol = 1)
 if(is.vector(u)) u = matrix(u,ncol = dim(X)[2])
 
@@ -97,8 +97,10 @@ if (method=="Euclidean")
   
 if(method == "Projection")
 {
+    set.seed(1)
     proj = runifsphere(ndir, ncol(X))
     depth = .Call("projection",PACKAGE = "depthproc",u,X,proj,ncol(X),nrow(X),nrow(u),nrow(proj))
+    rm(.Random.seed, pos = 1)
 }
   
 # if (method=="Projection")  
@@ -138,7 +140,7 @@ if(method == "Projection")
 #######################################################################
 if (method=="Tukey")
 {
- 
+  set.seed(1) 
   	tukey1d = function(u,X)
 		{
 		  Xecdf = ecdf(X)

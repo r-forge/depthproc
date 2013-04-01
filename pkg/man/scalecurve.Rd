@@ -6,11 +6,11 @@
 Draws a scale curve: measure of dispersion.
 }
 \usage{
-scalecurve(X, Y = NULL, alpha = seq(0,1,0.01), method = "Projection", draw = TRUE, nameX = "X", nameY = "Y", ...)
+scalecurve(x, x = NULL, alpha = seq(0,1,0.01), method = "Projection", draw = TRUE, nameX = "X", nameY = "Y", ...)
 }
 \arguments{
-  \item{X}{Multivariate data as a matrix.}
-  \item{Y}{Additional matrix with multivariate data.}
+  \item{x}{Multivariate data as a matrix.}
+  \item{y}{Additional matrix with multivariate data.}
   \item{alpha}{Vector with values of central area to be used in computation.}
   \item{method}{Character string which determines the depth function used. \code{method} can be "Projection" (the default), "Mahalanobis", "Euclidean" or "Tukey". For details see \code{\link{depth}.}}
   \item{draw}{Logical. Default TRUE produces scalecurve plot; otherwise, returns a data frame containing the central areas and their volume.}
