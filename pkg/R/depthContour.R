@@ -47,7 +47,7 @@ filled.contour(x_axis, y_axis, depth_surface,
 					}
 				if(pdmedian)
 					{
-						dmedian = med(X)
+						dmedian = med(X,method = method)
 						points(dmedian[1],dmedian[2] ,pch = 4,col = mecol, cex = 1.5,lwd = 2.5)
 						#abline(h = dmedian[2], col = mecol, lwd = 1.8)
 					}
