@@ -97,10 +97,11 @@ if (method=="Euclidean")
   
 if(method == "Projection")
 {
+    tmpSeed <- .Random.seed
     set.seed(1)
     proj = runifsphere(ndir, ncol(X))
     depth = .Call("projection",PACKAGE = "depthproc",u,X,proj,ncol(X),nrow(X),nrow(u),nrow(proj))
-    rm(.Random.seed, pos = 1)
+    set.seed(tmpSeed)
 }
   
 # if (method=="Projection")  
@@ -140,6 +141,7 @@ if(method == "Projection")
 #######################################################################
 if (method=="Tukey")
 {
+  tmpSeed <- .Random.seed
   set.seed(1) 
   	tukey1d = function(u,X)
 		{
@@ -177,6 +179,7 @@ if (method=="Tukey")
 	depth<-apply(OD,1,min)
   
   rm(.Random.seed, pos = 1)
+  set.seed(tmpSeed)
   }
 }
 
