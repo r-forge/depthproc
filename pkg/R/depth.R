@@ -101,7 +101,7 @@ if(method == "Projection")
     set.seed(1)
     proj = runifsphere(ndir, ncol(X))
     depth = .Call("projection",PACKAGE = "depthproc",u,X,proj,ncol(X),nrow(X),nrow(u),nrow(proj))
-    set.seed(tmpSeed)
+    assign(".Random.seed",tmpSeed,.GlobalEnv)
 }
   
 # if (method=="Projection")  
@@ -179,7 +179,7 @@ if (method=="Tukey")
 	depth<-apply(OD,1,min)
   
   rm(.Random.seed, pos = 1)
-  set.seed(tmpSeed)
+  assign(".Random.seed",tmpSeed,.GlobalEnv)
   }
 }
 
