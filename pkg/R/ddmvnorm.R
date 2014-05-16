@@ -1,51 +1,55 @@
-ddmvnorm <-function(x, method = "Projection", robust=FALSE, alpha=0.05, gamma=0.2, ...)     {
-     
-
-depth_sample <- depth(x, x, method, ...)
-
-size <- nrow(x)
-
-
-if (robust == TRUE) 
-	{
-		varcov <- cov(x[depth_sample>=quantile(depth_sample, alpha),])
-		location <- med(x, method=method, ...)
-	} 
-else
-	{ 
-		location <- apply(x, 2, mean)
-		varcov  <- cov(x) 
-	}
-
-theoretical <- mvrnorm(size, location, varcov)  
-
-depth_theoretical <- depth(x, theoretical, method, ...)
-
-
-
-	a_est = data.frame(alpha = depth_sample,norm = depth_theoretical)
-
-index_Liu = 0
-for (i in 1:nrow(a_est)) {
-  if ((abs(a_est[i,1] - a_est[i,2])>gamma)) { index_Liu = index_Liu + 1 }
-} 
-print(paste("Index Liu: ", index_Liu))
-	
-	p = ggplot()
-			p = p + geom_point(data = a_est, aes(alpha,norm),color = "blue",shape = 1)
-			#p = p + scale_color_manual(values=c("#E41A1C", "#377EB8"))
-			p = p + theme_bw()
-      p = p + ggtitle("DDplot") 
-      p = p + theme(title = element_text(face = "bold",vjust=1, size = 18))
-			p = p + xlab("Theoretical depth")
-			p = p + ylab("Sample depth")
-      p = p + ylim(c(0,max(a_est$norm)))
-      p = p + xlim(c(0,max(a_est$alpha)))
-      p = p + theme(axis.title.x  = element_text(face = "bold",vjust=0, size = 16))
-      p = p + theme(axis.title.y  = element_text(face = "bold", angle = 90,vjust=0.2,size = 16))
-      p = p + theme(axis.text.x  = element_text(size=14))
-      p = p + theme(axis.text.y  = element_text(size=14))
-      p + geom_abline(color = "grey")
+#' @name ddmvnorm
+#' @title Normal depth versus depth plot
+#' 
+#' @param x The data sample for DD plot.
+#' @param size size of theoretical set
+#' @param robust Logical. Dafault \code{FALSE}. If \code{TRUE}, robust measures are used to specify the parameters of theoretical distribution.
+#' @param alpha cutoff point for robust measure of covariance
+#' @param ... Parameters passed to \code{depth}
+#' 
+#' @description
+#' Produces a  normal DD plot of a multivirate dataset.
+#'
+#' @details
+#' In the first step the location and scale of \code{x} are estimated and theoretical sample of normal distribution with those parameters is generated. The plot presents the depth o empirical points with reference to \code{x} and theoretical sample.  
+#' @return
+#' Returns the normal depth versus depth plot of multivariate dataset \code{x}. 
+#'
+#'
+#' @references
+#' Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion), \emph{Ann. Statist.}, \bold{27}, 822--831.
+#' Liu, R.Y., Singh K. (1993), A Quality Index Based on Data Depth and Multivariate Rank Test, \emph{Journal of the American Statistical Association} vol. 88.
+#'
+#'  @author Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.
+#' @seealso \code{\link{ddPlot}} to generate ddPlot to compare to datasets or to compare a dataset with other distributions.
+#'
+#' @examples
+#'
+#' norm <- mvrnorm(1000, c(0,0,0), diag(3))
+#' con <- mvrnorm(100, c(1,2,5), 3*diag(3))
+#' Sample <- rbind(norm, con)
+#' ddmvnorm(Sample, robust=TRUE)
 
 
+
+ddmvnorm <-function(x, size = nrow(x), robust=FALSE, alpha=0.05, plot = TRUE, ...)     
+{
+  depth_sample <- depth(x, x,  ...)  
+  
+  if(robust == TRUE) 
+  {
+  	varcov <- cov(x[depth_sample>=quantile(depth_sample, alpha),])
+  	location <- depthMedian(x, method=method, ...)
+  } 
+  else
+  { 
+  	location <- apply(x, 2, mean)
+  	varcov  <- cov(x) 
+  }
+  theoretical <- mvrnorm(size, location, varcov)  
+  depth_theoretical <- depth(x, theoretical, ...)
+  ddplot = new("DDPlot",X = depth_sample, Y = depth_theoretical)
+  
+  if(plot) plot(ddplot)
+  return(ddplot)
 }

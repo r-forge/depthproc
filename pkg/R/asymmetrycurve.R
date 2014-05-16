@@ -1,50 +1,199 @@
-asymmetrycurve<-function(X,Y = NULL, alpha = seq(0,1,0.01), method = "Projection",
-	movingmedian = FALSE,draw = TRUE,title = "Asymmetry curve",nameX = "X", nameY = "Y",...)
-{
-	if(!is.matrix(X)) stop("X must be a matrix!")
-	if(!is.null(Y)) if(!is.matrix(Y)) stop("Y must be a matrix!")
-	
-  if(!movingmedian) x_est = as_curve(X,alpha,method,...) #function in as_curve.R
-	else x_est = as_curve_mm(X,alpha,method,...)  #function in as_curve_mm.R
-	
-  
-  
-	if(!is.null(Y)) 
-	{
-		
-		if(!movingmedian) y_est = as_curve(Y,alpha,method)
-		else y_est = as_curve_mm(Y,alpha,method)
-		xy_est = data.frame(rbind(x_est,y_est),c(rep(nameX,nrow(x_est)),rep(nameY,nrow(y_est))))
-		
-	}
-	else
-	{
-		xy_est = data.frame(x_est,rep(nameX,nrow(x_est)))
-	}
+#'@title Asymmetry curve based on depths
+#'
+#'@description Draws a asymmetry curve estimated from given data.
+#'
+#'  @param x Multivariate data as a matrix.
+#'  @param y Additional matrix with multivariate data.
+#'  @param alpha Vector with values of central area to be used in computing assymetry norm.
+#'  @param method Character string which determines the depth function. \code{method} can be "Projection" (the default), "Mahalanobis", "Euclidean" or "Tukey". For details see \code{\link{depth}.}
+#' @param movingmedian Logical. For default FALSE only one depth median is used to compute asymmetry norm. If TRUE - for every central area new depth median will be used - this approach needs much more time.
+#' @param plot Logical. Default TRUE produces aassymetry curve plot; otherwise, returns a data frame containing the central areas and asymmetry norm values over these points.
+#' @param name Name of set X - used in plot legend
+#' @param name_y Name of set Y - used in plot legend
+#' @param ... Any additional parameters for function depth
+#'
+#'@details 
+#'  
+#'  Asymmetrycurve takes advantage of function \code{convhulln} to compute volume of central area's convex hull.
+#'  
+#'  
+#'  @references 
+#'  
+#' Serfling  R. J.  Multivariate Symmetry and Asymmetry, \emph{Encyclopedia of Statistical Science}, S Kotz, C.B. Read, N. Balakrishnan, B. Vidakovic (eds), 2nd, ed., John Wiley.
+#'
+#'Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion), \emph{Ann. Statist.}, \bold{27}, 783--858.
+#'
+#'Chaudhuri, P. (1996), On a Geometric Notion of Quantiles for Multivariate Data, \emph{Journal of the American Statistical Association}, 862--872.
+#'
+#'Dyckerhoff, R. (2004), Data Depths Satisfying the Projection Property, \emph{Allgemeines Statistisches Archiv.},  \bold{88}, 163--190.
+#'  @author Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.
+#'  
+#'  @seealso \code{\link{scaleCurve}}, \code{\link{depth}}
+#'  
+#'  @examples
+#'
+#' xi = c(0,0)
+#' alpha <- c(2,-5)
+#' Omega <- diag(2)*5
+#' 
+#' n = 500
+#' X = mvrnorm(n, xi, Omega)  # normal distribution
+#' Y = rmst(n, xi, Omega, alpha, nu=1)
+#' asymmetryCurve(X,Y,name = "NORM",name_y = "S_T(2,-5,10)")
+#'  
+#'  
+#'  @keywords
+#'  multivariate
+#'  nonparametric
+#'  robust
+#'  depth function
+#'  asymmetry
+#'
 
+
+
+
+asymmetryCurve<-function(x, y = NULL, alpha = seq(0,1,0.01), method = "Projection",
+	movingmedian = FALSE,plot = TRUE, name = "X", name_y = "Y",...)
+{
+  if(nrow(x)<200) stop("Too small sample!")
+	if(!is.matrix(x)) stop("X must be a matrix!")
+	if(!is.null(y)) if(!is.matrix(y)) stop("Y must be a matrix!")
+	
+	depth_est <- depth(x,x,method=method, name=name) 
   
-	names(xy_est) <- c("alpha","norm","Set")
+  if(!movingmedian) x_est = .asCurve(x, depth_est, alpha, method, ...) #function in as_curve.R
+	else x_est = .asCurveMM(x,alpha,method,...)  #function in as_curve_mm.R
 	
-	
-			if(draw)
-			{
-			p = ggplot()
-			p = p + geom_line(data = xy_est, aes(alpha,norm,color = Set), size = 1.2)
-			p = p + scale_color_manual(values=c("#E41A1C", "#377EB8"))
-			p = p + theme_bw()
-			p = p + ggtitle(title) 
-			p = p + theme(title = element_text(face = "bold",vjust=1, size = 18))
-			p = p + xlab("Proportion p")
-			p = p + ylab(expression(As[n](p)))
-			p = p + ylim(c(0,max(xy_est$norm)))
-			p = p + theme(axis.title.x  = element_text(face = "bold",vjust=0, size = 16))
-			p = p + theme(axis.title.y  = element_text(face = "bold", angle = 90,vjust=0.4,size = 16))
-			p = p + theme(axis.text.x  = element_text(size=14))
-			p = p + theme(axis.text.y  = element_text(size=14))
-			p
-		}
-		else xy_est
-	
-	
-	
+	asc = new("AsymmetryCurve", x_est[,2], depth = depth_est, alpha = x_est[,1])
+  
+  if(!is.null(y)){
+    asc = asc + asymmetryCurve(y, y =NULL, alpha, method,
+                                         movingmedian, plot = FALSE, name = name_y, name_y = "Y",...)
+  }
+	return(asc)
 }
+
+.asCurve<-function(X, depth_est = NULL,alpha = NULL,method = "Projection",...)
+{
+  dim_X <- dim(X)[2] 
+  
+  if(is.null(depth_est)) depth_est = depth(X,X,method=method,...) 
+  
+  
+  median =  depthMedian(X,method=method,...)
+  
+  if((length(median)/dim(X)[2])!=1)
+  {
+    median = colMeans(median)
+  }
+  
+  k <-length(alpha)
+  vol = 1:k 
+  alpha_est = 1:k 
+  means = matrix(nrow = k, ncol = dim_X) 
+  
+  
+  for(i in 1:k)
+  {
+    tmp_X <- X[depth_est >= alpha[i],]
+    np <- dim(as.matrix(tmp_X))[1] 
+    
+    if ((np > ((2*(dim_X+2))^2))&(np > 100))
+    {
+      vol[i] <- convhulln(tmp_X,options = "FA")$vol
+      alpha_est[i] <- alpha[i]
+      means[i,] <- colMeans(tmp_X)
+      
+    }
+    else
+    {
+      vol[i]=NA 
+      alpha_est[i] <- NA  
+    }
+  }
+  
+  
+  #vol <- vol[!is.na(vol)]
+  #alpha_est <- alpha_est[!is.na(alpha_est)]
+  #means <- matrix(means[!is.na(means)],ncol=dim_X)
+  
+  k = length(vol)
+  kmedian = matrix(rep(median,k),byrow=TRUE,ncol=dim_X) # taka ma?a optymalizacja
+  
+  n=(means - kmedian)
+  nn = 2*sqrt(rowSums(n^2))/(vol^(1/dim_X)) 
+  
+  matrix(c(rev(1-alpha_est),rev(nn)),ncol=2)
+  
+}
+
+
+####################################
+####################################
+.asCurveMM<-function(X, depth_est = NULL,alpha = NULL,method,...)
+{
+  
+  dim_X <- dim(X)[2]
+  
+  if(is.null(depth_est)) depth_est = depth(X,X,method=method,...) 
+  if(is.null(alpha)) alpha = seq(0,1,0.01)
+  
+  
+  k <-length(alpha)
+  vol = 1:k 
+  alpha_est = 1:k
+  means = matrix(nrow = k, ncol = dim_X) 
+  medians = matrix(nrow = k, ncol = dim_X)
+  
+  for(i in 1:k)
+  {
+    tmp_X <- X[depth_est >= alpha[i],]
+    np <- dim(as.matrix(tmp_X))[1] 
+    
+    if ((np > ((2*(dim_X+2))^2))&(np > 100))
+    { 
+      vol[i] <- convhulln(tmp_X,options = "FA")$vol
+      alpha_est[i] <- alpha[i]
+      means[i,] <- colMeans(tmp_X)
+      
+      tmp_depth_est = depth(tmp_X,tmp_X,method,...)
+      
+      med = tmp_X[tmp_depth_est==max(tmp_depth_est),]
+      
+      if((length(med)/dim(X)[2])!=1)
+      {
+        
+        
+        
+        med = colMeans(med)
+        
+      }
+      medians[i,] = med
+      
+      
+    }
+    else
+    {
+      vol[i]=NA 
+      alpha_est[i] <- NA  
+    }
+  }
+  
+  
+  vol <- vol[!is.na(vol)]
+  alpha_est <- alpha_est[!is.na(alpha_est)]
+  means <- matrix(means[!is.na(means)],ncol=dim_X)
+  medians <- matrix(medians[!is.na(medians)],ncol=dim_X)
+  #koniec usuwani NA
+  
+  k = length(vol)
+  kvol = matrix(rep(vol,dim_X),ncol=dim_X) 
+  n=(means - medians)#/(kvol^(1/dim_X))
+  nn = 2*sqrt(rowSums(n^2))/(vol^(1/dim_X)) 
+  matrix(c(rev(1-alpha_est),rev(nn)),ncol=2)
+  
+}
+
+
+

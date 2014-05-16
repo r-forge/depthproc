@@ -172,7 +172,7 @@ return(r);
 	double depthtmp;
 	
 	double *pu = REAL(u);
-	double *pX = REAL(X);
+//	double *pX = REAL(X);
 	double *ptX = REAL(X);
 	double *pproj = REAL(proj);
 	
@@ -190,8 +190,6 @@ return(r);
 	int j;
 	int r;
 	
-	
-	
 	for(i = 0; i < l; i++)
 	{
 		
@@ -207,8 +205,6 @@ return(r);
 			
 			
 		}
-	
-
 		medians[i] = medianqs(tmpproj,n);
 		
 		for(j = 0; j < n; j++) tmpproj[j] = fabs(tmpproj[j] - medians[i]);

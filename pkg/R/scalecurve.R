@@ -1,26 +1,88 @@
+#'@title Scale curve
+#'
+#'@description Draws a scale curve: measure of dispersion.
+#'
+#'  @param x Multivariate data as a matrix.
+#'  @param y Additional matrix with multivariate data.
+#'  @param alpha Vector with values of central area to be used in computation.
+#'  @param method Character string which determines the depth function used. \code{method} can be "Projection" (the default), "Mahalanobis", "Euclidean" or "Tukey". For details see \code{\link{depth}.}
+#'  @param plot Logical. Default TRUE produces scalecurve plot; otherwise, returns a data frame containing the central areas and their volume.
+#'  @param name Name of matrix X used in legend.
+#'  @param name_y Name of matrix Y used in legend.
+#'  @param ... Any additional parameters for function \code{depth}.
+#'
+#'
+#'@details 
+#'  
+#'  The scale curve is a two-dimensional method to describe the dispersion of random vector around the median induced by considered depth function.
+#'
+#'  Function \code{scalecurve}, when determining the volumes of the convex hull containing subsequent points from alpha central region, uses function \code{convhulln} from \code{geometry} package.
+#'
+#'  The minimal dimension of data in X or Y is 2.
+#'
+#'  \code{ggplot2} package is used to draw a plot.
+#'  
+#'@return
+#'
+#'  Returns the volume of the convex hull containing subsequent central points of \code{X}.
+#'
+#'@references 
+#'  
+#'  Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion), \emph{Ann. Statist.}, \bold{27}, 783--858.
+#'
+#'  Chaudhuri, P. (1996), On a Geometric Notion of Quantiles for Multivariate Data, \emph{Journal of the American Statistical Association}, 862--872.
+#'
+#'  Dyckerhoff, R. (2004), Data Depths Satisfying the Projection Property, \emph{Allgemeines Statistisches Archiv.},  \bold{88}, 163--190.
+#'  
+#'  
+#'  @author Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.
+#'  
+#'  @seealso \code{\link{depthContour}} and \code{\link{depthPersp}} for depth graphics.
+#'  
+#'  @examples
+#'  require(mvtnorm)
+#'  x = mvrnorm(n = 100, mu = c(0,0), Sigma = 3*diag(2))
+#'  y = rmvt(n = 100, sigma = diag(2), df = 2)
+#'  scaleCurve(x, y, method = "Projection", plot = TRUE)
+#'  ## comparing of two scale curves - normal distribution and mixture of normal distributions
+#'  x = mvrnorm(100, c(0,0), diag(2))
+#'  y = mvrnorm(80, c(0,0), diag(2))
+#'  z = mvrnorm(20, c(5,5), diag(2))
+#'  scaleCurve(x, rbind(y,z), method = "Projection", plot = TRUE, nameX = "N", nameY = "Mixture of N")
+#'  
+#'  
+#'  
+#'  @keywords
+#'  multivariate
+#'  nonparametric
+#'  robust
+#'  depth function
+#'  scale curve
+#'  
 
-scalecurve<-function(x,y=NULL,alpha = seq(0,1,0.01),method = "Projection",draw = TRUE,
-	nameX = "X", nameY = "Y",...)
+
+scaleCurve<-function(x,y=NULL,alpha = seq(0,1,0.01),method = "Projection",plot = TRUE,
+	name = "X", name_y = "Y",...)
 {
-
-  if(!is.matrix(x)) stop("x must be a matrix!")
-  if(!is.null(y)) if(!is.matrix(y)) stop("y must be a matrix!")
-  
-  if (is.null(y)) 
-  {
-	
+  if(is.data.frame(x)) x = as.matrix(x)
+  if(!is.matrix(x)) stop("x must be a matrix or data frame!")
+  if(!is.null(y)) 
+    {
+      if(is.data.frame(y)) y = as.matrix(y)
+      if(!is.matrix(y)) stop("y must be a matrix or data frame!")
+    }
   dim_x <- dim(x)[2] 
 
-	depth_est <- depth(x,x,method,...) 
+	depth_est <- depth(x,x,method, name = name) 
  
 	k = length(alpha)
 	vol = 1:k 
 
 	
-		for(i in 1:k)
+	for(i in 1:k)
 	{
 		tmp_x <- x[depth_est >= alpha[i],]
-		np <- dim(as.matrix(tmp_x))[1] 
+		np <- nrow(as.matrix(tmp_x))
 
 		if (np > dim_x)
 		{ 
@@ -29,91 +91,20 @@ scalecurve<-function(x,y=NULL,alpha = seq(0,1,0.01),method = "Projection",draw =
 		else
 		{
 			vol[i]=0 
-
 		}
 	}
 	
 
-	a = c(1-alpha) 
-	b = c(vol) 
-	Set = c(rep(nameX,length(alpha)))
-	xy_est = data.frame(x = a, y = b,Set = Set) 
+	scale_curve = new("ScaleCurve",rev(vol), alpha = alpha, depth = depth_est)
+  
+  if(!is.null(y))
+  {
+    sc_tmp = scaleCurve(x=y,y=NULL,alpha = alpha, method = method,plot = FALSE,
+                         name = name_y, name_y = "Y",...)
+    scale_curve = scale_curve + sc_tmp
+  }
 
-	
-	}
-	
-	if (!is.null(y))
-    	{
-       dim_x <- dim(x)[2] 
-       dim_y <- dim(y)[2] 
-
-        depth_est_x <- depth(x,x,method,...) 
-      	depth_est_y <- depth(y,y,method,...) 
-       
-      	k = length(alpha)
-      	vol_x = 1:k 
-       vol_y = 1:k
-	
-    		for(i in 1:k)
-    	{
-	    	tmp_x <- x[depth_est_x >= alpha[i],]
-		
-	    	tmp_y <- y[depth_est_y >= alpha[i],]   
-		
-	    	np_x <- dim(as.matrix(tmp_x))[1]
-
-    	np_y <- dim(as.matrix(tmp_y))[1] 
-
-
-	  	if ((np_x > dim_x) && (np_y > dim_y) ){
-	    		vol_x[i] <- convhulln(tmp_x,options = "FA")$vol
-	    		vol_y[i] <- convhulln(tmp_y,options = "FA")$vol
- 	  	}
-	  	else
-	   	{
-	    		vol_x[i]=0 
-		    	vol_y[i]=0
-
-    	}
-
-    	}
-	
-
-    	x = c(1-alpha,1-alpha) 
-    	y = c(vol_x,vol_y) 
-    	Set = c(rep(nameX,length(alpha)),rep(nameY,length(alpha)))
-    	xy_est = data.frame(x = x, y = y,Set = Set)
-	
-
-	}
-
-	names(xy_est) <- c("p","S_n","Set")
-
-	if(draw)
-	{
-			p = ggplot()
-			p = p + geom_line(data = xy_est, aes(x = p,y = S_n,colour = Set), size = 1.2)
-			p = p + scale_color_manual(values=c("#E41A1C", "#377EB8"))
-			p = p + theme_bw()
-			p = p + ggtitle("Scale curve") 
-			p = p + theme(title = element_text(face = "bold",vjust=1, size = 18))
-			p = p + xlab("1-p")
-			p = p + ylab(expression(S[n](p)))
-			p = p + ylim(c(0,max(xy_est$S_n)))
-			p = p + theme(axis.title.x  = element_text(face = "bold",vjust=0, size = 16))
-			p = p + theme(axis.title.y  = element_text(face = "bold", angle = 90,vjust=0.2,size = 16))
-			p = p + theme(axis.text.x  = element_text(size=14))
-			p = p + theme(axis.text.y  = element_text(size=14))
-      
-      p
-		
-		
-	}
-	
-	
-	else
-	{
-		xy_est
-	}
+  if(plot) plot(scale_curve)
+  return(scale_curve)
 	
 }
