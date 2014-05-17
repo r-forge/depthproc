@@ -1,5 +1,7 @@
 #' @name trimProjReg2d
 #' @title trimProjReg2d
+#' @export
+#' 
 #' @description Computes projection trimmed regression in 2 dimensions.
 #'
 #' @param x Independent variable
@@ -16,9 +18,6 @@
 #'  abline(lm(Reserves~Income,data = pension), lty = 3, lwd = 2) #lm
 #'  abline(trimProjReg2d(pension[,1],pension[,2]), lwd = 2) #trimprojreg2d
 #'  legend("bottomright", c("OLS","TrimLS"), lty = 1:2)
-
-
-
 trimProjReg2d<-function(x, y, alpha = 0.1)
 {
 

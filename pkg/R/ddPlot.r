@@ -1,6 +1,6 @@
 #' @name ddPlot
 #' @title Depth versus depth plot
-#'
+#' @export
 #' @description
 #' Produces a DD plot which allows to compare two multivirate datasets or to compare a subject dataset with theoretical distribution.
 #'
@@ -32,6 +32,9 @@
 #'  @author Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.
 #' 
 #' @examples
+#' require(MASS)
+#' require(sn)
+#' require(mvtnorm)
 #' 
 #'  ## Location difference
 #' Standard <- mvrnorm(1000, c(0,0), diag(2))
@@ -60,7 +63,7 @@
 #' Kurt <-rmt(1000, mean=c(0,0), S=diag(2), df=1)
 #' ddPlot(x=Standard, y=Kurt)
 
-ddPlot <- function (x, y, scale = FALSE, location = FALSE, plot = TRUE, name_x = "X", name_y = "Y", ...) 
+ddPlot <- function (x, y, scale = FALSE, location = FALSE, plot = TRUE, name_x = "X", name_y = "Y", title = "Depth vs. depth plot", ...) 
 {
 #   if (is.null(y)) {
 #     size = nrow(x)
@@ -114,7 +117,7 @@ ddPlot <- function (x, y, scale = FALSE, location = FALSE, plot = TRUE, name_x =
     depth_x <- depth(data, x_new,  name = name_x, ...)
     depth_y <- depth(data, y_new,  name = name_y, ...)
     
-    ddplot = new("DDPlot", X = depth_x, Y = depth_y)
+    ddplot = new("DDPlot", X = depth_x, Y = depth_y, title = title)
 #  }
   
   if(plot) plot(ddplot)

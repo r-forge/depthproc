@@ -1,5 +1,5 @@
 #'@title 2d Binning
-#'
+#'@importFrom sm binning
 #'@description Binning 2d
 #'
 #'  @param x bivariate matrix
@@ -12,9 +12,11 @@
 #'  
 #'  
 #'  @seealso \code{\link{depth}}
+#'  @export
 #'  
 #'  @examples
 #'  
+#'  require(MASS)
 #'  binningDepth2D(x = mvrnorm(100,rep(0,2),diag(2)))
 #'  
 #'  @keywords
@@ -22,8 +24,6 @@
 #'  nonparametric
 #'  robust
 #'  depth function
-
-
 binningDepth2D = function(x, binmethod = "LocDepth", nbins = 8, k = 1, remove_borders = FALSE, devel = FALSE, ...)
 {
   createBin = function(x, nbins, mean = NULL)
@@ -112,11 +112,12 @@ binningDepth2D = function(x, binmethod = "LocDepth", nbins = 8, k = 1, remove_bo
 #'@title 2d Binning plot
 #'
 #'@description Binning 2d
-#'
+#'@export
 #'  @seealso \code{\link{depth}}
 #'  
 #'  @examples
 #'  
+#'  require(MASS)
 #'  tmp = binningDepth2D(x = mvrnorm(100,rep(0,2),diag(2)))
 #'  plot(tmp)
 #'  @keywords
@@ -124,8 +125,7 @@ binningDepth2D = function(x, binmethod = "LocDepth", nbins = 8, k = 1, remove_bo
 #'  nonparametric
 #'  robust
 #'  depth function
-
-setMethod("plot", signature = c(x = "BinnDepth2d", y = "missing"), function(x, y = "missing", alpha = 0.1, bg_col = "red", add_mid = TRUE,...){
+setMethod("plot", signature = c(x = "BinnDepth2d", y = "missing"), function(x, y = "missing",..., alpha = 0.1, bg_col = "red", add_mid = TRUE){
   
   breaks_y = x@breaks_y
   breaks_x = x@breaks_x

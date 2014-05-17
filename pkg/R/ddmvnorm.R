@@ -1,5 +1,6 @@
 #' @name ddmvnorm
 #' @title Normal depth versus depth plot
+#' @export
 #' 
 #' @param x The data sample for DD plot.
 #' @param size size of theoretical set
@@ -24,22 +25,19 @@
 #' @seealso \code{\link{ddPlot}} to generate ddPlot to compare to datasets or to compare a dataset with other distributions.
 #'
 #' @examples
-#'
+#' require(MASS)
 #' norm <- mvrnorm(1000, c(0,0,0), diag(3))
 #' con <- mvrnorm(100, c(1,2,5), 3*diag(3))
-#' Sample <- rbind(norm, con)
-#' ddmvnorm(Sample, robust=TRUE)
-
-
-
-ddmvnorm <-function(x, size = nrow(x), robust=FALSE, alpha=0.05, plot = TRUE, ...)     
+#' sample <- rbind(norm, con)
+#' ddMvnorm(sample, robust=TRUE)
+ddMvnorm <-function(x, size = nrow(x), robust=FALSE, alpha=0.05, plot = TRUE,title = "ddMvnorm", ...)     
 {
   depth_sample <- depth(x, x,  ...)  
   
   if(robust == TRUE) 
   {
   	varcov <- cov(x[depth_sample>=quantile(depth_sample, alpha),])
-  	location <- depthMedian(x, method=method, ...)
+  	location <- depthMedian(x, ...)
   } 
   else
   { 
@@ -48,7 +46,7 @@ ddmvnorm <-function(x, size = nrow(x), robust=FALSE, alpha=0.05, plot = TRUE, ..
   }
   theoretical <- mvrnorm(size, location, varcov)  
   depth_theoretical <- depth(x, theoretical, ...)
-  ddplot = new("DDPlot",X = depth_sample, Y = depth_theoretical)
+  ddplot = new("DDPlot",X = depth_sample, Y = depth_theoretical, title = title)
   
   if(plot) plot(ddplot)
   return(ddplot)
