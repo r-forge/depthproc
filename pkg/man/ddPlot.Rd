@@ -37,8 +37,7 @@ When \code{distribution} is "mvnorm" the sample dataset is compared with multivi
 }
 \examples{
 require(MASS)
-require(sn)
-require(mvtnorm)
+
 
  ## Location difference
 Standard <- mvrnorm(1000, c(0,0), diag(2))
@@ -51,21 +50,6 @@ Standard <- mvrnorm(1000, c(0,0), diag(2))
 Scale <- mvrnorm(1000, c(0,0), 4*diag(2))
 ddPlot(x=Standard, y=Scale)
 ddPlot(x=Standard, y=Scale, scale=TRUE)
-
-
-## Skewness difference
-require(MASS)
-require(sn)
-Standard <- mvrnorm(1000, c(0,0), diag(2))
-Skew <- rmsn(1000, xi=c(0,0), Omega= diag(2), alpha=c(6,1))
-ddPlot(x=Standard, y=Skew)
-
-## Kurtosis difference
-require(MASS)
-require(mnormt)
-Standard <- mvrnorm(1000, c(0,0), diag(2))
-Kurt <-rmt(1000, mean=c(0,0), S=diag(2), df=1)
-ddPlot(x=Standard, y=Kurt)
 }
 \author{
 Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.
