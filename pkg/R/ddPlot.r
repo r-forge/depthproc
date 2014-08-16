@@ -6,23 +6,18 @@
 #'
 #' @param x The first or only data sample for ddPlot.
 #' @param y The second data sample. \code{x} and \code{y} must be of the same space.
-#' @param scale
-#' @param loaction
-#' @param plot
-#' @param name_x
-#' @param name_y
+#' @param scale logical. determines whether the dispersion is to be aligned.
+#' @param location determines whether the location is to be aligned to 0 vector with depth median.
+#' @param name_x name for data set x. It will be passed to drawing function.
+#' @param name_y name for data set y.
+#' @param title title of the plot.
 #' @param ... Parameters passed to depth function
 #'
 #' @details
 #'  
-#'  When \code{distribution} is "mvnorm" the sample dataset is compared with multivirate normal distribution with given parameters. \code{mean} and \code{varcov} must be specified.
-#'  
-#'  When \code{distribution} is "t" the sample dataset is compared with multivirate t-Student distribution with given parameters. \code{mean} and \code{S} must be specified. \code{df=Inf} by default.
-#'  
-#'  When \code{distribution} is "smvnorm" the sample dataset is compared with multivirate skew normal distribution with given parameters. \code{xi}, \code{Omega} and \code{alpha} must be specified.
-#'  
-#'  When \code{distribution} is "st" the sample dataset is compared with multivirate skew t-Student distribution with given parameters. \code{xi}, \code{Omega} and \code{alpha} must be specified. \code{df=Inf} by default.
-#'  
+#' For two probability distributions  \eqn{ F }  and  \eqn{ G } , both in  \eqn{ {{{R}}^{d}} } , we can define {depth vs. depth} plot being very useful generalization of the one dimensional quantile-quantile plot:    \deqn{ DD(F,G)=\left\{ \left( D({z},F),D({z},G) \right),{z}\in {{{R}}^{d}} \right\} }    
+#' Its sample counterpart calculated for two samples  \eqn{ {{{X}}^{n}}=\{{{X}_{1}},.,{{X}_{n}}\} }  from  \eqn{ F } , and  \eqn{ {{Y}^{m}}=\{{{Y}_{1}},...,{{Y}_{m}}\} }  from  \eqn{ G }  is defined as
+#' \deqn{ DD({{F}_{n}},{{G}_{m}})=\left\{ \left( D({z},{{F}_{n}}),D({z},{{G}_{m}}) \right),{z}\in \{{{{X}}^{n}}\cup {{{Y}}^{m}}\} \right\}}  
 #'
 #' @references
 #' Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion), \emph{Ann. Statist.}, \bold{27}, 822--831.
@@ -36,56 +31,20 @@
 #' require(sn)
 #' require(mvtnorm)
 #' 
-#'  ## Location difference
-#' Standard <- mvrnorm(1000, c(0,0), diag(2))
-#' Shift <- mvrnorm(1000, c(0.5, 0), diag(2))
-#' ddPlot(x=Standard, y=Shift)
-#' ddPlot(x=Standard, y=Shift, location=TRUE)
+#' # EXAMPLE 1: Location difference
+#' standard = mvrnorm(1000, c(0,0), diag(2))
+#' shift    =  mvrnorm(1000, c(0.5, 0), diag(2))
+#' ddPlot(x = standard, y = shift, title = "Difference in position")
+#' ddPlot(x = standard, y = shift, location = TRUE, title = "Location aligned")
 #' 
-#' ## Scale difference
-#' Standard <- mvrnorm(1000, c(0,0), diag(2))
-#' Scale <- mvrnorm(1000, c(0,0), 4*diag(2))
-#' ddPlot(x=Standard, y=Scale)
-#' ddPlot(x=Standard, y=Scale, scale=TRUE)
-#' 
-#' 
-#' ## Skewness difference
-#' require(MASS)
-#' require(sn)
-#' Standard <- mvrnorm(1000, c(0,0), diag(2))
-#' Skew <- rmsn(1000, xi=c(0,0), Omega= diag(2), alpha=c(6,1))
-#' ddPlot(x=Standard, y=Skew)    
+#' ## EXAMPLE 2: Scale difference
+#' standard <- mvrnorm(1000, c(0,0), diag(2))
+#' scale <- mvrnorm(1000, c(0,0), 4*diag(2))
+#' ddPlot(x=standard, y=scale)
+#' ddPlot(x=standard, y=scale, scale=TRUE)
 #'   
-#' ## Kurtosis difference
-#' require(MASS)
-#' require(mnormt)
-#' Standard <- mvrnorm(1000, c(0,0), diag(2))
-#' Kurt <-rmt(1000, mean=c(0,0), S=diag(2), df=1)
-#' ddPlot(x=Standard, y=Kurt)
-
-ddPlot <- function (x, y, scale = FALSE, location = FALSE, plot = TRUE, name_x = "X", name_y = "Y", title = "Depth vs. depth plot", ...) 
+ddPlot <- function (x, y, scale = FALSE, location = FALSE, name_x = "X", name_y = "Y", title = "Depth vs. depth plot", ...) 
 {
-#   if (is.null(y)) {
-#     size = nrow(x)
-#     d    = ncol(x) 
-#     
-#     if (distribution == "mvnorm") {
-#       theoretical <- mvrnorm(n = size, ...)
-#     }
-#     else if (distribution == "t") {
-#       theoretical <- rmt(n = size, ...)
-#     }
-#     else if (distribution == "smvnorm") {
-#       theoretical <- rmsn(n = size, ...)
-#     }
-#     else if (distribution == "st") {
-#       theoretical <- rmst(n = size, ...)
-#     }
-#     depth_sample <- depth(x, x, method, name = name_x, ...)
-#     depth_theoretical <- depth(x, theoretical, method, name = name_y, ...)
-#     ddplot = new("DDPlot", X = depth_sample, Y = depth_theoretical)
-#   }
-#   else {
     if (ncol(x) != ncol(y)) {
       print("Wrong dimensions of the datasets! ncol(x)!=ncol(y)")
     }
@@ -118,8 +77,7 @@ ddPlot <- function (x, y, scale = FALSE, location = FALSE, plot = TRUE, name_x =
     depth_y <- depth(data, y_new,  name = name_y, ...)
     
     ddplot = new("DDPlot", X = depth_x, Y = depth_y, title = title)
-#  }
+
   
-  if(plot) plot(ddplot)
   return(ddplot)
 }

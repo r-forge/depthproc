@@ -98,6 +98,24 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// depthTukeyCPP
+SEXP depthTukeyCPP(SEXP ru, SEXP rX, bool exact, int threads);
+RcppExport SEXP depthproc_depthTukeyCPP(SEXP ruSEXP, SEXP rXSEXP, SEXP exactSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type ru(ruSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type rX(rXSEXP );
+        Rcpp::traits::input_parameter< bool >::type exact(exactSEXP );
+        Rcpp::traits::input_parameter< int >::type threads(threadsSEXP );
+        SEXP __result = depthTukeyCPP(ru, rX, exact, threads);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // sampleDepthContForMuCPP
 SEXP sampleDepthContForMuCPP(double d, double mu, SEXP rY);
 RcppExport SEXP depthproc_sampleDepthContForMuCPP(SEXP dSEXP, SEXP muSEXP, SEXP rYSEXP) {

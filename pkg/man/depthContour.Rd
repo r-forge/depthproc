@@ -10,10 +10,6 @@ depthContour(x, xlim = extendrange(x[, 1], f = 0.1), ylim = extendrange(x[,
 \arguments{
 \item{x}{Bivariate data}
 
-\item{method}{Character string which determines the depth function. \code{method} can be "Projection" (the default), "Mahalanobis", "Euclidean" or "Tukey". For details see \code{\link{depth}.}}
-
-\item{plot_title}{Title of the plot}
-
 \item{xlim}{Determines the width of x-axis.}
 
 \item{ylim}{Determines the width of y-axis.}
@@ -32,17 +28,27 @@ depthContour(x, xlim = extendrange(x[, 1], f = 0.1), ylim = extendrange(x[,
 
 \item{points}{Logical. If TRUE points from matrix x will be drawn.}
 
-\item{\dots}{Any additional parameters for function depth}
+\item{\dots}{Any additional parameters for function depth (such as method) or graphical parameters (e.g. lwd, lty, main).}
 }
 \description{
 Draws an approximate contours of depth for bivariate data.
 }
+\details{
+The set of all points that have depth at least  \eqn{ \alpha  }  is called { \eqn{ \alpha - }  trimmed region}. The  \eqn{ \alpha - }  trimmed region w.r.t.  \eqn{ F }  is denoted by  \eqn{ {D}_{\alpha }(F) }  , i.e.,
+ \deqn{ {D}_{\alpha }(F)=\left\{ z\in {{{R}}^{d}}:D(z,F)\ge \alpha  \right\}}.
+}
 \examples{
+# EXAMPLE 1
 require(MASS)
 x = mvrnorm(1000,c(0,0),diag(2))
 depthContour(x)
 #with points
 depthContour(x, points = TRUE)
+
+ #EXAMPLE 2
+ data(inf.mort,maesles.imm)
+ data1990=na.omit(cbind(inf.mort[,1],maesles.imm[,1]))
+ depthContour(data1990, n = 50, pmean = TRUE, mcol = "blue", pdmedian = TRUE, mecol = "brown", legend = TRUE, points = TRUE,xlab="infant mortality rate per 1000 live birth", ylab="against masles immunized percentage", main='L2 depth, UN Fourth Goal 2011 year',method = "LP")
 }
 \author{
 Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.

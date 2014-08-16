@@ -1,39 +1,17 @@
-#include <RcppArmadillo.h>
-#include <limits>
-#include <math.h>
-#include <algorithm>
-using namespace Rcpp;
+#include "LocationScaleDepth.h"
+#include "Utils.h"
 
-
-arma::vec seq(const double& x, const double& y, const size_t& length)
-{
-  arma::vec result(length);
-  double step = (y-x)/static_cast<double>(length-1);
-  result(0) = x;
-  for(size_t i = 1; i < length; i++) result(i) = result(i-1) + step;
-  return(result);
-}
-
-arma::vec sampleDepthContForMu(size_t d, double mu, const arma::vec& y, size_t m, bool from_rcpp) 
+namespace LSD
 {
 
-  
+arma::vec sampleDepthContForMu(size_t d, double mu, const arma::vec& y, size_t m) 
+{
 /* Returns vector with lbound, ubound, tbound, case, M */
-
-  //size_t m = 0;
   size_t n = y.n_elem;
-  if(from_rcpp) 
-  {
-    m = 0;
-    for(size_t i = 0; i < n; i++) if(y[i]<mu) m++;
-  }
+  
   
   bool case_ = false;  
   bool tbound = false;  
-  
-
-  
-  //std::printf("M value %i \n", m);
       
   double lbound = std::numeric_limits<int>::min();
   double ubound = std::numeric_limits<int>::max();
@@ -45,26 +23,19 @@ arma::vec sampleDepthContForMu(size_t d, double mu, const arma::vec& y, size_t m
 
       if( d > 0 && (d<=m && d<=n-m-case_))
       {
-
-
         for(size_t i = m-d; i<m; i++)
         {
             tmp = (mu-y[i])*(y[d+i]-mu);
-            //std::printf("tmp value %i %i \n", m-d, m);
             tmp = sqrt(tmp);
-            
-            if(tmp > lbound) lbound = tmp;
-            
+            if(tmp > lbound) lbound = tmp;  
         }
         
-
         for(size_t i = 0; i < d; i++)
         {
             tmp = (mu-y[i])*(y[n-d+i]-mu);
             tmp = sqrt(tmp);
             if(tmp < ubound) ubound = tmp;
         }
-        //std::printf("Ubound value %f \n", ubound);
         
         if(lbound <= ubound)  tbound = true;
         else{tbound = false;}
@@ -84,32 +55,17 @@ arma::vec sampleDepthContForMu(size_t d, double mu, const arma::vec& y, size_t m
   return result;
 }
 
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::export]]
-SEXP sampleDepthContForMuCPP(double d, double mu, SEXP rY)
-{
-    Rcpp::NumericVector cY(rY);
-    arma::vec y(cY); 
-    y = arma::sort(y);
-    
-    arma::vec result = sampleDepthContForMu(d, mu, y, 0, true);
-    return wrap(result);
-}
 
-        
+
 arma::vec sampleMaxDepthForMu(double mu,const arma::vec& y, size_t d_min, size_t max_iter, double eps) 
 {
-//  Rcpp::NumericVector cY(ry);
-//  arma::vec y(cY); 
-//  y = arma::sort(y);
-
   size_t n = y.n_elem;
   size_t m = 0;
   for(size_t i = 0; i < n; i++) if(y[i]<mu) m++;
   
   size_t d = y[m]>mu ? std::min(m,n-m) : std::min(m,n-m-1);
        
-  arma::vec cont = sampleDepthContForMu(d, mu, y, m, false); 
+  arma::vec cont = sampleDepthContForMu(d, mu, y, m); 
   double difbound = cont[1]-cont[0]; //difbound<-cont["ubound"]-cont["lbound"];
 
 
@@ -128,7 +84,7 @@ arma::vec sampleMaxDepthForMu(double mu,const arma::vec& y, size_t d_min, size_t
       iter++;
       (difbound < -eps ? d_up : d_low) = d; 
       d = rint(static_cast<double>(d_up+d_low)/2);
-      cont = sampleDepthContForMu(d, mu, y, m, false);
+      cont = sampleDepthContForMu(d, mu, y, m);
       difbound = cont[1]-cont[0];
     }
   }
@@ -136,7 +92,7 @@ arma::vec sampleMaxDepthForMu(double mu,const arma::vec& y, size_t d_min, size_t
   if(difbound< -eps)
   {        
     d = d-1;
-    cont = sampleDepthContForMu(d, mu, y, m, false);
+    cont = sampleDepthContForMu(d, mu, y, m);
     difbound = cont[1]-cont[0];
   }
   
@@ -149,46 +105,24 @@ arma::vec sampleMaxDepthForMu(double mu,const arma::vec& y, size_t d_min, size_t
   return result;
 }
 
-
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::export]]
-SEXP sampleMaxDepthForMuCPP(double mu,const SEXP rY, int d_min, int max_iter, double eps) 
-{
-    Rcpp::NumericVector cY(rY);
-    arma::vec y(cY); 
-    y = arma::sort(y);
-    
-    arma::vec result = sampleMaxDepthForMu(mu, y, d_min, max_iter, eps); 
-    return wrap(result);
-}
-
-
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::export]]
-SEXP  sampleMaxLocScaleDepthCPP(SEXP ry, double iter, double eps, double p_length)
+/* 
+* Calculate maximum location scale depth from given sample
+*/
+arma::vec sampleMaxLocScaleDepth(arma::vec y, size_t max_iter, double eps, double p_length)
 {
     // Calculates the maximum sample location-scale depth  
     // for the data set y 
     // Uses function sample.depth.cont.for.mu and sample.max.depth.for.mu
     // p.length is the maximum length of the precision step at the end
-    Rcpp::NumericVector cY(ry);
-    arma::vec y(cY); 
     y = arma::sort(y);
     
-    
     size_t N = y.n_elem;
-    
     
     size_t d_min = floor(static_cast<double>(N)/3);
     size_t n_mid = round(static_cast<double>(N)/2);
     
-    
-    
-    arma::vec res = sampleMaxDepthForMu(y[n_mid-1], y, d_min, iter, eps); 
-    //sample.max.depth.for.mu(mu=y[n.mid],y=y,d.min=d.min,iter=iter,eps=eps)
-    
-    
-    
+    arma::vec res = LSD::sampleMaxDepthForMu(y[n_mid-1], y, d_min, max_iter, eps); 
+     
     size_t d = res[0]; // "d"
     double s = res[1]; //"sigma"
     double difb = res[3]; //difbound;
@@ -214,24 +148,14 @@ SEXP  sampleMaxLocScaleDepthCPP(SEXP ry, double iter, double eps, double p_lengt
        n_low = floor(static_cast<double>(N)/3);
       
       dec = 1;
-      while(i < iter && (n_up-1>n_low && dec>0))
+      while(i < max_iter && (n_up-1>n_low && dec>0))
       {
         i++;
-     //   std::printf("%i %i %i ",d, n_up, n_low);
         n_mid_low = ceil(static_cast<double>(n_mid+n_low)/2);
-        //if(n_mid_low>1) n_mid_low--;
-        
         n_mid_up = floor(static_cast<double>(n_mid+n_up)/2);
-    //  std::printf("|| %i %i ||",n_mid_low,  n_mid_up);
-      //  std::printf("|| %f %i ||",y[n_mid_low-1],  d_min);
-        res_low = sampleMaxDepthForMu(y[n_mid_low-1], y, d_min, iter, eps);
-        //sample.max.depth.for.mu(mu=y[n.mid.low],y=y,d.min=d.min,
-        //                                 iter=iter,eps=eps);
-        res_up = sampleMaxDepthForMu(y[n_mid_up-1], y, d_min, iter, eps);
-        //sample.max.depth.for.mu(mu=y[n.mid.up],y=y,d.min=d.min,
-        //                                iter=iter,eps=eps);
-                                        
-                                        
+        res_low  = LSD::sampleMaxDepthForMu(y[n_mid_low-1], y, d_min, max_iter, eps);
+        res_up   = LSD::sampleMaxDepthForMu(y[n_mid_up-1], y, d_min, max_iter, eps);
+                                                                      
         all_iterations += res_low[2];
         all_iterations += res_up[2];
         
@@ -261,7 +185,6 @@ SEXP  sampleMaxLocScaleDepthCPP(SEXP ry, double iter, double eps, double p_lengt
           else{
             if(d_low < d || d_up < d)
             {
-            //  std::printf(" d_low %i %i   ", d_low, d);
               if(d_low < d)
               {
       
@@ -285,19 +208,13 @@ SEXP  sampleMaxLocScaleDepthCPP(SEXP ry, double iter, double eps, double p_lengt
     // Precision step
     size_t length = std::max(p_length,static_cast<double>(2*(n_up-n_low+1)));
     
-    
-    arma::vec mu = seq(y[n_low-1],y[n_up-1],length);
-    //std::printf("%i %i %i \n", length, n_up, n_low);
-    
+    arma::vec mu = Utils::seq(y[n_low-1],y[n_up-1],length);
     arma::mat res_matrix(length,4);
     
     
     for(size_t i = 0; i < length; i++)
     {
-      res_matrix.row(i) = sampleMaxDepthForMu(mu[i], y, d_min, iter, eps).t();
-  /*    res<-rbind(res,sample.max.depth.for.mu(mu=mu[i],y=y,d.min=d.min,iter=iter,eps=eps))
-      #   cat("i: ", i, "res: ", res[i,"i"], "\n")
-      i.mu<-cbind(i.mu, res[i,"i"])*/
+      res_matrix.row(i) = LSD::sampleMaxDepthForMu(mu[i], y, d_min, max_iter, eps).t();
     }
     d = max(res_matrix.col(0));
     
@@ -308,22 +225,23 @@ SEXP  sampleMaxLocScaleDepthCPP(SEXP ry, double iter, double eps, double p_lengt
     mu = mu(tmp_res);
     if(mu.n_elem > 1) 
     {
-      
       tmp_n = rint(static_cast<double>(mu.n_elem)/2)-1;
-      //std::printf("%i %i  \n", tmp_n, mu.n_elem );
     }
     
     s = res_matrix.at(tmp_n,1);
-    //difb<-res[length.half,"difbound"]
 
-  
-  // res<-c(d,mu,s)
   arma::vec result(3);
   result[0] = d;
   result[1] = mu[tmp_n];
   result[2] = s; 
     
-  //std::printf("%i \n", tmp_n );
+  return result;
+}
 
-    return wrap(result);
-  }
+
+
+
+
+}
+
+

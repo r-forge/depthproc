@@ -3,8 +3,6 @@
 #'  @description Draws an approximate contours of depth for bivariate data.
 #'  
 #' @param x Bivariate data
-#' @param method Character string which determines the depth function. \code{method} can be "Projection" (the default), "Mahalanobis", "Euclidean" or "Tukey". For details see \code{\link{depth}.}
-#' @param plot_title Title of the plot
 #' @param xlim Determines the width of x-axis.
 #' @param ylim Determines the width of y-axis.
 #' @param n Number of points in each coordinate direction to be used in contour plot.
@@ -14,27 +12,35 @@
 #' @param mecol Determines the color of lines describing the depth median. 
 #' @param legend Logical. If TRUE legend for mean and depth median will be drawn.
 #' @param points Logical. If TRUE points from matrix x will be drawn.
-#' @param \dots Any additional parameters for function depth
+#' @param \dots Any additional parameters for function depth (such as method) or graphical parameters (e.g. lwd, lty, main).
+#'  
+#'  
+#'  @details
+#'  
+#'  The set of all points that have depth at least  \eqn{ \alpha  }  is called { \eqn{ \alpha - }  trimmed region}. The  \eqn{ \alpha - }  trimmed region w.r.t.  \eqn{ F }  is denoted by  \eqn{ {D}_{\alpha }(F) }  , i.e.,  
+#'  \deqn{ {D}_{\alpha }(F)=\left\{ z\in {{{R}}^{d}}:D(z,F)\ge \alpha  \right\}}.
 #'  
 #'  @author Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.
 #'  
 #'  @seealso \code{\link{depthPersp}}
 #'  
 #'  @examples
+#' # EXAMPLE 1
 #' require(MASS)
 #' x = mvrnorm(1000,c(0,0),diag(2))
 #' depthContour(x)
 #' #with points
 #' depthContour(x, points = TRUE)
 #'  
+#'  #EXAMPLE 2
+#'  data(inf.mort,maesles.imm)
+#'  data1990=na.omit(cbind(inf.mort[,1],maesles.imm[,1]))
+#'  depthContour(data1990, n = 50, pmean = TRUE, mcol = "blue", pdmedian = TRUE, mecol = "brown", legend = TRUE, points = TRUE,xlab="infant mortality rate per 1000 live birth", ylab="against masles immunized percentage", main='L2 depth, UN Fourth Goal 2011 year',method = "LP")
 #'  
 #'  
 #'  @keywords
 #'  contour
 #'  depth
-
-
-
 depthContour<-function(x, xlim = extendrange(x[,1],f=0.1), ylim = extendrange(x[,2],f=0.1),n=50,pmean = TRUE,mcol = "blue", pdmedian = TRUE, mecol = "brown",legend = TRUE,points = FALSE, ...)
 { 
 			x_axis = seq(xlim[1],xlim[2],length.out = n)
@@ -87,7 +93,10 @@ do.call(filled.contour, c(list(x = x_axis, y = y_axis, z = depth_surface,
 				if(pdmedian)
 					{
             depth_params$u = x
-						dmedian = do.call(depthMedian,depth_params)#depthMedian(x,method = method)
+            depths = do.call(depth,depth_params)
+            med = x[depths == max(depths),]
+            if(ncol(x) != length(med)) med = colMeans(med)
+						dmedian = med
 						points(dmedian[1],dmedian[2] ,pch = 4,col = mecol, cex = 1.5,lwd = 2.5)
 						#abline(h = dmedian[2], col = mecol, lwd = 1.8)
 					}

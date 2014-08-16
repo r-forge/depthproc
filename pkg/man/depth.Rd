@@ -12,19 +12,17 @@ depth(u, X, method = "Projection", name = "X", threads = -1, ...)
 
 \item{method}{Character string which determines the depth function. \code{method} can be "Projection" (the default), "Mahalanobis", "Euclidean" or "Tukey". For details see \code{\link{depth}.}}
 
-\item{name}{name for this data set - it will be used on plots from depthproc.}
+\item{name}{name for this data set - it will be used on plots.}
+
+\item{threads}{number of threads used in parallel computations. Default value -1 means that all possible cores will be used.}
 
 \item{...}{parameters specific to method - see \code{\link{depthEuclid}}}
 }
 \description{
-Computes the depth of a point or vectors of points with respect to a multivariate data set.
+Depth calculation
 }
 \details{
-Irrespective of dimension, Projection and Tukey's depth is obtained by approximate calculation.
-
- Calculation of Mahalanobis and Euclidean depth is exact.
-
- Returns the depth of multivariate point \code{u} with respect to data set \code{X}.
+Calculate depth functions.
 }
 \examples{
 require(robustbase)
@@ -37,21 +35,20 @@ require(robustbase)
  depth(starsCYG, starsCYG)
 
  ## Projection depth applied to a large bivariate data set
- set.seed(356)
- x <- matrix(rnorm(9999), nc = 3)
+ x = matrix(rnorm(9999), nc = 3)
  depth(x, x)
 }
 \author{
 Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt Zawadzki from Cracow University of Economics.
 }
 \references{
-Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion), \emph{Ann. Statist.}, \bold{27}, 783--858.
+Liu, R.Y., Parelius, J.M. and Singh, K. (1999), Multivariate analysis by data depth: Descriptive statistics, graphics and inference (with discussion),  Ann. Statist.,  27, 783-858.
 
- Rousseuw, P.J. and Ruts, I. (1996), AS 307 : Bivariate location depth, \emph{Appl. Stat.-J. Roy. S. C},  \bold{45}, 516--526.
+Mosler K (2013). Depth statistics. In C Becker, R Fried, K S (eds.), Robustness and Complex Data Structures, Festschrift in Honour of Ursula Gather, pp. 17-34. Springer.
 
- Rousseeuw, P.J. and Struyf, A. (1998), Computing location depth and regression depth in higher dimensions, \emph{Stat. Comput.}, \bold{8}, 193--203.
+Rousseeuw, P.J. and Struyf, A. (1998), Computing location depth and regression depth in higher dimensions,  Stat. Comput.,  8, 193-203.
 
- Zuo, Y. amd Serfling, R. (2000), General Notions of Statistical Depth Functions, \emph{Ann. Statist.},  \bold{28}, no. 2, 461--482.
+Zuo, Y. and Serfling, R. (2000), General Notions of Statistical Depth Functions,  Ann. Statist.,  28, no. 2, 461-482.
 }
 \seealso{
 \code{\link{depthContour}} and \code{\link{depthPersp}} for depth graphics.
