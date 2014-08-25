@@ -5,11 +5,11 @@ namespace Tukey
   
 double getDepths1(double m,const double j)
 {
-  if(m < j) return 0;
+  if(m < j) return 0.0;
   if(j==1) return m;
-  if(j==2) return (m*(m-1))/2;
-  if(j==3) return (m*(m-1)*(m-2))/6;
-  return 0;
+  if(j==2) return (m*(m-1.0))/2.0;
+  if(j==3) return (m*(m-1.0)*(m-2.0))/6.0;
+  return 0.0;
 }
 
 double getHDEP(size_t NT, size_t N, double NUMH)
@@ -94,7 +94,7 @@ double depthTukey2dExact(double U, double V,const arma::mat& m)
   //arma::mat m(cm.begin(), cm.nrow(), cm.ncol(), false);
   // CONST
   const size_t N   = m.n_rows;
-  const double P   = acos(-1);
+  const double P   = M_PI;
   const double P2  = P*2.0;
   const double EPS = 0.000001;
   
