@@ -3,7 +3,7 @@
 \alias{mWilcoxonTest}
 \title{Depth based multivariate Wilcoxon test for a scale difference.}
 \usage{
-mWilcoxonTest(x, y, alternative = "two.sided", ...)
+mWilcoxonTest(x, y, alternative = "greater", ...)
 }
 \arguments{
 \item{x}{data matrix}

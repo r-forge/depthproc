@@ -1,5 +1,5 @@
 Package: DepthProc
-Version: 1.0.1
+Version: 1.0.2
 Date: 2014-08-18
 Title: DepthProc
 Author: Daniel Kosiorowski, Mateusz Bocian, Anna Wegrzynkiewicz and Zygmunt
@@ -12,16 +12,19 @@ Depends:
     ggplot2,
     Rcpp (>= 0.11.2),
     rrcov,
-    np,
     methods,
     MASS
 Imports:
     lattice,
     sm,
-    geometry
+    geometry,
+    colorspace,
+    np
 Suggests:
     mvtnorm,
     rgl,
     sn,
     robustbase,
+    dplyr,
+    RcppArmadillo
 LinkingTo: Rcpp, RcppArmadillo
